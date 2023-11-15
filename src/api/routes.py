@@ -47,3 +47,21 @@ def create_user():
     except Exception as error:
         db.session.rollback()
         return jsonify({"Message":f"{error}"}), 500
+
+
+@api.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    user = User.query.filter_by(email=email).one_or_none()
+
+    if user is None:
+        return jsonify({"Message":"Wrong propperty"}), 400
+    else:
+        if check_password_hash(user.password, password):
+            return jsonify({"Message":"success"}), 200
+        else:
+            return jsonify({"Message":"Wrong propperty"}), 400
+        
