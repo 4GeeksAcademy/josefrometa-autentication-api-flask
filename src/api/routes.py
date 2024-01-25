@@ -5,8 +5,18 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from werkzeug.security import generate_password_hash, check_password_hash
+from base64 import b64encode
+import os
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 api = Blueprint('api', __name__)
+
+def set_password(password, salt):
+    return generate_password_hash(f"{password}{salt}")
+
+
+def check_password(hash_password, password, salt):
+    return check_password_hash(hash_password, f"{password}{salt}")
 
 
 @api.route('/hello', methods=['POST', 'GET'])
@@ -34,10 +44,11 @@ def create_user():
     if check_email is not None:
         return jsonify({"Message":"User already exist"})
 
-    password = generate_password_hash(password)
 
-    new_user = User(email = email, password=password, is_active=is_active)
-
+    salt = b64encode(os.urandom(32)).decode("utf-8")
+    password = set_password(password, salt)
+    
+    new_user = User(email = email, password = password,salt = salt)
 
 
     try:
@@ -49,19 +60,39 @@ def create_user():
         return jsonify({"Message":f"{error}"}), 500
 
 
+
 @api.route('/login', methods=['POST'])
 def login():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
+    body = request.json
+    email = body.get("email")
+    password = body.get("password")
 
     user = User.query.filter_by(email=email).one_or_none()
 
-    if user is None:
-        return jsonify({"Message":"Wrong propperty"}), 400
+    if email is None or password is None:
+        return jsonify({"message":"You need email and password"}), 400
     else:
-        if check_password_hash(user.password, password):
-            return jsonify({"Message":"success"}), 200
-        else:
-            return jsonify({"Message":"Wrong propperty"}), 400
-        
+            if check_password(user.password, password, user.salt):
+                token = create_access_token(identity={
+                    "user_id":user.id,
+                })
+                return jsonify({"token":token}), 200
+            else:
+                return jsonify({"message":"Bad credentials"}), 400
+
+
+
+@api.route("/user", methods=["GET"])
+@jwt_required()
+def get_all_users():
+   
+    users = User.query.all()
+    return jsonify(list(map(lambda item: item.serialize(), users)))
+
+@api.route("/user/<int:theid>", methods=["GET"])
+def get_one_user(theid=None):
+    user = User.query.get(theid)
+    if user is None:
+        return jsonify({"message":"user not found"}), 404
+    return jsonify(user.serialize())
+    
