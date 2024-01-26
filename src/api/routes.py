@@ -49,7 +49,7 @@ def create_user():
     salt = b64encode(os.urandom(32)).decode("utf-8")
     password = set_password(password, salt)
     
-    new_user = User(email = email, password = password,salt = salt, is_active = is_active)
+    new_user = User(email = email, password = password, salt = salt)
 
 
     try:
