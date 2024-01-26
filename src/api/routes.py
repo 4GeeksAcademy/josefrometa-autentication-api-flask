@@ -19,16 +19,17 @@ def check_password(hash_password, password, salt):
     return check_password_hash(hash_password, f"{password}{salt}")
 
 
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
+# @api.route('/hello', methods=['POST', 'GET'])
+# def handle_hello():
 
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
+#     response_body = {
+#         "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
+#     }
 
-    return jsonify(response_body), 200
+#     return jsonify(response_body), 200
 
 
+# signup a new user
 @api.route('/signup', methods=['POST'])
 def create_user():
     body = request.json
@@ -48,7 +49,7 @@ def create_user():
     salt = b64encode(os.urandom(32)).decode("utf-8")
     password = set_password(password, salt)
     
-    new_user = User(email = email, password = password,salt = salt)
+    new_user = User(email = email, password = password,salt = salt, is_active = is_active)
 
 
     try:
@@ -60,7 +61,7 @@ def create_user():
         return jsonify({"Message":f"{error}"}), 500
 
 
-
+# Login a user
 @api.route('/login', methods=['POST'])
 def login():
     body = request.json
@@ -80,8 +81,16 @@ def login():
             else:
                 return jsonify({"message":"Bad credentials"}), 400
 
+# List all the created users
+@api.route('/users', methods=['GET'])
+def get_users_list():
+     users = User.query.all()
+     user_list = []
+     for item in users:
+         user_list.append(item.serialize())
+     return jsonify(user_list), 200 
 
-
+# List a user that has a valid token
 @api.route("/user", methods=["GET"])
 @jwt_required()
 def get_all_users():
@@ -89,6 +98,7 @@ def get_all_users():
     users = User.query.all()
     return jsonify(list(map(lambda item: item.serialize(), users)))
 
+# List a user by id
 @api.route("/user/<int:theid>", methods=["GET"])
 def get_one_user(theid=None):
     user = User.query.get(theid)
