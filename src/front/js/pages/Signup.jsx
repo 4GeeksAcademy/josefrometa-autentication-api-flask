@@ -24,7 +24,7 @@ const Signup = () => {
             <h1 className="m-2 p-2">Sign Up</h1>
             <label>Email</label>
             <input
-                type="text"
+                type="email"
                 placeholder="Email"
                 className="form-control border border-rounded"
                 name="email"

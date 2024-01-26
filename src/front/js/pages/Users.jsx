@@ -20,12 +20,14 @@ const Users = () => {
                 store.token == null ?
                     <Navigate to={"/login"} /> :
                     <>
-                        <h1>Hello there :D</h1>
+                    <div className="container">
+                        <h1 className="m-5">Registered Users</h1>
                         {store.users.map((item) => {
                             return (
-                                <p>{item.email}</p>
+                                <p className="border rounded border-primary p-2">{item.email}</p>
                             )
                         })}
+                    </div>
                     </>
             }
         </>

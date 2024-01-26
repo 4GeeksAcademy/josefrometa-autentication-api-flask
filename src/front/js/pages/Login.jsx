@@ -24,14 +24,17 @@ const Login = () => {
     return (
         <div className="container">
             <form onSubmit={handleLogin}>
+            <h1 className="m-2 p-2">Login</h1>
+            <label>Email</label>
                 <input
-                    type="text"
+                    type="email"
                     placeholder="email"
                     className="form-control border border-rounded"
                     name="email"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                 />
+                 <label>Password</label>
                 <input
                     type="password"
                     placeholder="password"
@@ -40,7 +43,7 @@ const Login = () => {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                 />
-                <button className="btn btn-success">Login</button>
+                <button className="m-2 btn btn-success">Login</button>
             </form>
         </div>
     );

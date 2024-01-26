@@ -99,10 +99,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log(error)
 				}
 			},
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-
 			getMessage: async () => {
 				try{
 					// fetching data from the backend

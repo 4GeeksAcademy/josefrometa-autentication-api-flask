@@ -35,7 +35,6 @@ def create_user():
     body = request.json
     email = body.get("email")
     password = body.get("password")
-    is_active = body.get("is_active")
 
     if email is None or password is None:
         return jsonify({"Message":"You should fill all the request data"}), 400
